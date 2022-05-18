@@ -15,6 +15,7 @@ var spritex = []
 var spritey = []
 var spritedir = []
 var spritesize = []
+var spritecache = []
 var sprites = 0
 
 function resetsprites() {
@@ -24,6 +25,7 @@ function resetsprites() {
     spritey = []
     spritedir = []
     spritesize = []
+    spritecache = []
     sprites = 0
 }
 //resets
@@ -58,7 +60,22 @@ function u_errorm(msg) {
     alert(msg)
 }
 
-function initsprites() {
+async function cachesvgfromzip(img) {
+    if (JSON.parse(proj).targets[0].isStage == true) {
+        var svgdecomp = await projzip.file(img).async("string")
+        var svgencode = encodeSvg(svgdecomp)
+        var svgimg = new Image()
+        svgimg.onload = function() {
+            spritecache.push(svgimg)
+        }
+        svgimg.src = "data:image/svg+xml;utf-8," + svgencode
+    } else {
+        running = false
+        u_errorm("IMGCACHE Error: Error while caching imgs")
+    }
+}
+
+async function initsprites() {
     for (let i = 1; i <= JSON.parse(proj).targets.length-1; i++) {
         try {
             var currcostume = JSON.parse(proj).targets[i].currentCostume
@@ -69,6 +86,7 @@ function initsprites() {
             spritey.push(JSON.parse(proj).targets[i].y)
             spritesize.push(JSON.parse(proj).targets[i].size)
             spritedir.push(JSON.parse(proj).targets[i].direction)
+            await cachesvgfromzip(spriteimg[i-1])
         } catch (error) {
             running = false
             u_errorm("Init Sprites Error: " + error)
@@ -88,7 +106,7 @@ async function sb3upload() {
         JSZip.loadAsync(fileto).then(async function (zip) {
             projzip = zip
             proj = await zip.file("project.json").async("string")
-            initsprites()
+            await initsprites()
         });
     } else {
         u_errorm("File Read Error: Project is not an sb3 file.")
@@ -103,7 +121,7 @@ function runproj(){running=!0}function stopproj(){running=!1}
 //!0 = true
 //!1 = false
 
-async function imgrot(img,x,y,w,h,r) {
+function imgrot(img,x,y,w,h,r) {
     cct.translate( x+w/2, y+h/2 );
     cct.rotate( r*Math.PI/180);
     cct.translate( -x-w/2, -y-h/2 );
@@ -119,25 +137,15 @@ function encodeSvg(e){return e.replace("<svg",~e.indexOf("xmlns")?"<svg":'<svg x
 //[[                     End                        ]]
 
 async function rendersvgfromzip(img,x,y,w,h,rot,size) {
-    if (JSON.parse(proj).targets[0].isStage == true) {
-        var svgdecomp = await projzip.file(img).async("string")
-        var svgencode = encodeSvg(svgdecomp)
-        var svgimg = new Image()
-        svgimg.onload = async function() {
-            await imgrot(svgimg,x,y,w,h,rot)
-        }
-        svgimg.src = "data:image/svg+xml;utf-8," + svgencode
-    } else {
-        running = false
-        u_errorm("JSON Parsing Error: Cannot continue, cannot convert sprite costume")
-    }
+    imgrot(spritecache[img],x,y,w,h,rot)
 }
 
+var renderdone = true
 var i2 = 0
 
-async function rendersprites() {
+function rendersprites() {
     for (let i = 0; i < spriteimg.length; i++) {
-        await rendersvgfromzip(spriteimg,i2,0,100,100,45,100)
+        rendersvgfromzip(i,0,0,100,100,0,100)
     }
 }
 
@@ -146,15 +154,12 @@ function delay(time) {
 	//Make sure to put the function as "async runction"
 }
 
-async function renderproj(bg) {
-    //i2 += 1
-    //if (i2%10 > 8) {
-        frect(0,0,canvas.width,canvas.height,"white")
-        var w = bg.width;
-        var h = bg.height;
-        cct.drawImage(bg,-w/4,-h/4,w*2,h*2)
-        await rendersprites()
-    //}
+function renderproj(bg) {
+    frect(0,0,canvas.width,canvas.height,"white")
+    var w = bg.width;
+    var h = bg.height;
+    cct.drawImage(bg,-w/4,-h/4,w*2,h*2)
+    rendersprites()
 }
 //Renders Project
 
@@ -167,8 +172,8 @@ async function parsebg() {
         var fbg = encodeSvg(bg)
         var bg_e = new Image()
         var p = new DOMParser()
-        bg_e.onload = async function() {
-            await renderproj(bg_e)
+        bg_e.onload = function() {
+            renderproj(bg_e)
         }
         bg_e.src = "data:image/svg+xml;utf-8," + fbg
     } else {
@@ -178,10 +183,10 @@ async function parsebg() {
 }
 //Manages Background
 
-async function scratchmain() {
+function scratchmain() {
     if (running) {
         if (proj != null) {
-            await parsebg()
+            parsebg()
         } 
         if (proj == null) {
             console.log("t")
@@ -200,6 +205,6 @@ async function scratchmain() {
         } 
     }
     sprites = spritenames.length
-    window.requestAnimationFrame(await scratchmain)
+    window.requestAnimationFrame(scratchmain)
 }
 //Main Loop
