@@ -103,7 +103,7 @@ function runproj(){running=!0}function stopproj(){running=!1}
 //!0 = true
 //!1 = false
 
-function imgrot(img,x,y,w,h,r) {
+async function imgrot(img,x,y,w,h,r) {
     cct.translate( x+w/2, y+h/2 );
     cct.rotate( r*Math.PI/180);
     cct.translate( -x-w/2, -y-h/2 );
@@ -118,12 +118,43 @@ function encodeSvg(e){return e.replace("<svg",~e.indexOf("xmlns")?"<svg":'<svg x
 
 //[[                     End                        ]]
 
-function rendersprites() {
-    
+async function rendersvgfromzip(img,x,y,w,h,rot,size) {
+    if (JSON.parse(proj).targets[0].isStage == true) {
+        var svgdecomp = await projzip.file(img).async("string")
+        var svgencode = encodeSvg(svgdecomp)
+        var svgimg = new Image()
+        svgimg.onload = async function() {
+            await imgrot(svgimg,x,y,w,h,rot)
+        }
+        svgimg.src = "data:image/svg+xml;utf-8," + svgencode
+    } else {
+        running = false
+        u_errorm("JSON Parsing Error: Cannot continue, cannot convert sprite costume")
+    }
 }
 
-function renderproj() {
-    rendersprites()
+var i2 = 0
+
+async function rendersprites() {
+    for (let i = 0; i < spriteimg.length; i++) {
+        await rendersvgfromzip(spriteimg,i2,0,100,100,45,100)
+    }
+}
+
+function delay(time) {
+	return new Promise(resolve => setTimeout(resolve, time));
+	//Make sure to put the function as "async runction"
+}
+
+async function renderproj(bg) {
+    //i2 += 1
+    //if (i2%10 > 8) {
+        frect(0,0,canvas.width,canvas.height,"white")
+        var w = bg.width;
+        var h = bg.height;
+        cct.drawImage(bg,-w/4,-h/4,w*2,h*2)
+        await rendersprites()
+    //}
 }
 //Renders Project
 
@@ -136,12 +167,8 @@ async function parsebg() {
         var fbg = encodeSvg(bg)
         var bg_e = new Image()
         var p = new DOMParser()
-        bg_e.onload = function() {
-            frect(0,0,canvas.width,canvas.height,"white")
-            var w = bg_e.width;
-            var h = bg_e.height;
-            cct.drawImage(bg_e,-w/4,-h/4,w*2,h*2)
-            renderproj()
+        bg_e.onload = async function() {
+            await renderproj(bg_e)
         }
         bg_e.src = "data:image/svg+xml;utf-8," + fbg
     } else {
@@ -173,6 +200,6 @@ async function scratchmain() {
         } 
     }
     sprites = spritenames.length
-    window.requestAnimationFrame(scratchmain)
+    window.requestAnimationFrame(await scratchmain)
 }
 //Main Loop
