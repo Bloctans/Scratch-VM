@@ -1,2 +1,2 @@
 # Scratch-VM
- Scratch vm i made
+ Scratch vm I made
