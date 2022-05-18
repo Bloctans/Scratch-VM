@@ -1,0 +1,50 @@
+body {
+    display: block;
+    margin: 0;
+    background-color: #4280d7;
+    padding: 0;
+    color: #fff;
+    font-size: .8rem;
+    font-weight: bold;
+    font-family: Arial, Helvetica, sans-serif;
+    user-select: none;
+}
+
+.stage_stage {
+    display: block;
+    border-radius: 0.5rem;
+    border: 0.0625rem solid hsla(0, 0%, 0%, 0.15);
+    overflow: hidden;
+    background-color: transparent;
+    -ms-touch-action: none;
+    touch-action: none;
+    -webkit-box-sizing: content-box !important;
+    box-sizing: content-box !important;
+    position: relative;
+}
+
+#wrapper {
+    left: 50%;
+    top: 50%;
+    position: absolute;
+    transform: translate(-50%,-50%);
+}
+
+.button{
+    display: inline-block;
+    margin: 0.5em 0;
+    border: 0;
+    border-radius: 0.5rem;
+    background-color: #4d97ff;
+    cursor: pointer;
+    padding: 1em 1.25em;
+    color: #fff;
+    font-size: .8rem;
+    font-weight: bold;
+}
+
+.notice{
+    left: 50%;
+    position: absolute;
+    transform: translate(-50%,0);
+}
