@@ -55,10 +55,10 @@ function frect(x,y,w,h,c) {
 }
 //Allows fillrect to be called without the fillstyle
 
-function toscratchcoord(x,y) {
+function toscratchcoord(x,y,w,h) {
     //idk
-    x = canvas.width/2.6+x
-    y = canvas.height/2.8+y * -1
+    x = canvas.width/2-(w/2)+x
+    y = canvas.height/2-(h/2)+y * -1
     return [x,y]
 }
 
@@ -145,7 +145,7 @@ function encodeSvg(e){return e.replace("<svg",~e.indexOf("xmlns")?"<svg":'<svg x
 //[[                     End                        ]]
 
 async function rendersvgfromzip(img,x,y,rot,size) {
-    let tosc = toscratchcoord(x,y)
+    let tosc = toscratchcoord(x,y,spritew[img],spriteh[img])
     imgrot(spritecache[img],tosc[0],tosc[1],spritew[img],spriteh[img],rot)
 }
 
@@ -164,6 +164,7 @@ function delay(time) {
 }
 
 function renderproj(bg) {
+    i2 += 1
     frect(0,0,canvas.width,canvas.height,"white")
     var w = bg.width;
     var h = bg.height;
