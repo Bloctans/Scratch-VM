@@ -118,8 +118,12 @@ function encodeSvg(e){return e.replace("<svg",~e.indexOf("xmlns")?"<svg":'<svg x
 
 //[[                     End                        ]]
 
-function renderproj() {
+function rendersprites() {
     
+}
+
+function renderproj() {
+    rendersprites()
 }
 //Renders Project
 
