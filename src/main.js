@@ -103,25 +103,23 @@ function runproj(){running=!0}function stopproj(){running=!1}
 //!0 = true
 //!1 = false
 
+function imgrot(img,x,y,w,h,r) {
+    cct.translate( x+w/2, y+h/2 );
+    cct.rotate( r*Math.PI/180);
+    cct.translate( -x-w/2, -y-h/2 );
+    cct.drawImage(img,x,y,w,h)
+    cct.setTransform(1,0,0,1,0,0)
+}
+//rotate image
+
 // this function is from the work of Taylor Hunt found at https://codepen.io/tigt/post/optimizing-svgs-in-data-uris
 function encodeSvg(e){return e.replace("<svg",~e.indexOf("xmlns")?"<svg":'<svg xmlns="http://www.w3.org/2000/svg"').replace(/"/g,"'").replace(/%/g,"%25").replace(/#/g,"%23").replace(/{/g,"%7B").replace(/}/g,"%7D").replace(/</g,"%3C").replace(/>/g,"%3E").replace(/\s+/g," ")}
 //Encodes SVG for data URL Usage
 
 //[[                     End                        ]]
 
-var i = 0
-
-function rotfill(x,y,w,h) {
-    cct.translate( x+w/2, y+h/2 );
-    i += 0.1
-    cct.rotate(Math.sin(i));
-    cct.translate( -x-w/2, -y-h/2 );
-    frect(x,y, w, h,"green");
-    cct.setTransform(1,0,0,1,0,0)
-}
-
 function renderproj() {
-    rotfill(50,50,200,200)
+    
 }
 //Renders Project
 
