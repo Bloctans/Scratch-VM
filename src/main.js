@@ -13,6 +13,8 @@ var spritenames = []
 var spriteimg = []
 var spritex = []
 var spritey = []
+var spritew = []
+var spriteh = []
 var spritedir = []
 var spritesize = []
 var spritecache = []
@@ -23,6 +25,8 @@ function resetsprites() {
     spriteimg = []
     spritex = []
     spritey = []
+    spritew = []
+    spriteh = []
     spritedir = []
     spritesize = []
     spritecache = []
@@ -51,9 +55,11 @@ function frect(x,y,w,h,c) {
 }
 //Allows fillrect to be called without the fillstyle
 
-function u_scratchcoord(x,y) {
+function toscratchcoord(x,y) {
     //idk
-    return x,y
+    x = canvas.width/2.6+x
+    y = canvas.height/2.8+y * -1
+    return [x,y]
 }
 
 function u_errorm(msg) {
@@ -67,6 +73,8 @@ async function cachesvgfromzip(img) {
         var svgimg = new Image()
         svgimg.onload = function() {
             spritecache.push(svgimg)
+            spritew.push(svgimg.width)
+            spriteh.push(svgimg.height)
         }
         svgimg.src = "data:image/svg+xml;utf-8," + svgencode
     } else {
@@ -136,8 +144,9 @@ function encodeSvg(e){return e.replace("<svg",~e.indexOf("xmlns")?"<svg":'<svg x
 
 //[[                     End                        ]]
 
-async function rendersvgfromzip(img,x,y,w,h,rot,size) {
-    imgrot(spritecache[img],x,y,w,h,rot)
+async function rendersvgfromzip(img,x,y,rot,size) {
+    let tosc = toscratchcoord(x,y)
+    imgrot(spritecache[img],tosc[0],tosc[1],spritew[img],spriteh[img],rot)
 }
 
 var renderdone = true
@@ -145,7 +154,7 @@ var i2 = 0
 
 function rendersprites() {
     for (let i = 0; i < spriteimg.length; i++) {
-        rendersvgfromzip(i,0,0,100,100,0,100)
+        rendersvgfromzip(i,spritex[i],spritey[i],0,100)
     }
 }
 
@@ -158,7 +167,7 @@ function renderproj(bg) {
     frect(0,0,canvas.width,canvas.height,"white")
     var w = bg.width;
     var h = bg.height;
-    cct.drawImage(bg,-w/4,-h/4,w*2,h*2)
+    cct.drawImage(bg,-w/8,-h/8,w,h)
     rendersprites()
 }
 //Renders Project
