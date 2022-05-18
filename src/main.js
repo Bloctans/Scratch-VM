@@ -109,9 +109,19 @@ function encodeSvg(e){return e.replace("<svg",~e.indexOf("xmlns")?"<svg":'<svg x
 
 //[[                     End                        ]]
 
+var i = 0
+
+function rotfill(x,y,w,h) {
+    cct.translate( x+w/2, y+h/2 );
+    i += 0.1
+    cct.rotate(Math.sin(i));
+    cct.translate( -x-w/2, -y-h/2 );
+    frect(x,y, w, h,"green");
+    cct.setTransform(1,0,0,1,0,0)
+}
 
 function renderproj() {
-    frect(10,10,10,10,"red")
+    rotfill(50,50,200,200)
 }
 //Renders Project
 
