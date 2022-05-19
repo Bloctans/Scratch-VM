@@ -7,8 +7,39 @@
         <meta name='viewport' content='width=device-width, initial-scale=1'>
         <link rel="stylesheet" href="main.css"></link>
         <script src='main.js'></script>
+        <link rel="stylesheet" href="./lib/scratch-vm/loadingscreen/main.css"></link>
     </head>
     <body>
+        <div id="loadbg">
+            <div class=container>
+                <div class=block-animation>
+                    <img
+                        class=top-block
+                        src=./lib/scratch-vm/loadingscreen/top-block.svg
+                    />
+                    <img
+                        class=middle-block
+                        src=./lib/scratch-vm/loadingscreen/middle-block.svg
+                    />
+                    <img
+                        class=bottom-block
+                        src=./lib/scratch-vm/loadingscreen/bottom-block.svg
+                    />
+                </div>
+                <div class=title>
+                    Loading The Virtual Machine
+                </div>
+                <div class=message-container-outer>
+                    <div
+                        class=message-container-inner
+                        style="transform: translate(0, -1 * 25px)">
+                        <div class=message key=1>
+                            Might Take a Bit...             
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div id="wrapper">
             <p class = "notice" style = "bottom: 100%;">FanMade Scratch VM</p>
             <input type="file" id="uploadsb3" class = "button" accept=".sb3"></input>

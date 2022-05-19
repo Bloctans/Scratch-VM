@@ -35,6 +35,7 @@ function resetsprites() {
 //resets
 
 window.addEventListener('load',function() {
+    document.getElementById("loadbg").remove()
     initsite()
 })
 
