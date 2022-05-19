@@ -193,26 +193,33 @@ async function parsebg() {
 }
 //Manages Background
 
+function noproj() {
+    frect(0,0,canvas.width,canvas.height,"white")
+    cct.font = '16px Arial'
+    cct.fillStyle = "Black"
+    cct.fillText("No Project",canvas.width/2.4,canvas.height/2)
+}
+
 function scratchmain() {
     if (running) {
         if (proj != null) {
             parsebg()
         } 
         if (proj == null) {
-            console.log("t")
-            frect(0,0,canvas.width,canvas.height,"white")
-            cct.font = '48px Arial'
-            cct.fillStyle = "Black"
-            cct.fillText("No Project",canvas.width/2.8,canvas.height/2)
+            noproj()
         }
     } 
     else {
         if (proj != null) {
             frect(0,0,canvas.width,canvas.height,"white")
-            cct.font = '48px Arial'
+            cct.font = '16px Arial'
             cct.fillStyle = "Black"
-            cct.fillText("Project Found! Press Start!",canvas.width/5,canvas.height/2)
+            var s = "Project Found! Press Start!"
+            cct.fillText(s,canvas.width/3.4,canvas.height/2)
         } 
+        if (proj == null) {
+            noproj()
+        }
     }
     sprites = spritenames.length
     window.requestAnimationFrame(scratchmain)
