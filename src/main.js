@@ -35,7 +35,6 @@ function resetsprites() {
 //resets
 
 window.addEventListener('load',function() {
-    document.getElementById("loadbg").remove()
     initsite()
 })
 
@@ -46,6 +45,7 @@ function initsite() {
     cct = canvas.getContext("2d");
     cct.fillStyle = "white"
     cct.fillRect(0,0,canvas.width,canvas.height)
+    document.getElementById("loadbg").remove()
     window.requestAnimationFrame(scratchmain)
 }
 //Start Site
