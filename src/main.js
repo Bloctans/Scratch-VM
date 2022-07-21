@@ -68,7 +68,7 @@ function u_errorm(msg) {
 }
 
 async function cachesvgfromzip(img) {
-    if (JSON.parse(proj).targets[0].isStage == true) {
+    if (proj[0].isStage == true) {
         const svgdecomp = await projzip.file(img).async("string")
         var svgencode = encodeSvg(svgdecomp)
         var svgimg = new Image()
@@ -85,16 +85,16 @@ async function cachesvgfromzip(img) {
 }
 
 async function initsprites() {
-    for (let i = 1; i <= JSON.parse(proj).targets.length-1; i++) {
+    for (let i = 1; i <= proj.length-1; i++) {
         try {
-            const currcostume = JSON.parse(proj).targets[i].currentCostume
+            const currcostume = proj[i].currentCostume
 
-            spritenames.push(JSON.parse(proj).targets[i].name)
-            spriteimg.push(JSON.parse(proj).targets[i].costumes[currcostume].md5ext)
-            spritex.push(JSON.parse(proj).targets[i].x)
-            spritey.push(JSON.parse(proj).targets[i].y)
-            spritesize.push(JSON.parse(proj).targets[i].size)
-            spritedir.push(JSON.parse(proj).targets[i].direction)
+            spritenames.push(proj[i].name)
+            spriteimg.push(proj[i].costumes[currcostume].md5ext)
+            spritex.push(proj[i].x)
+            spritey.push(proj[i].y)
+            spritesize.push(proj[i].size)
+            spritedir.push(proj[i].direction)
             await cachesvgfromzip(spriteimg[i-1])
         } catch (error) {
             running = false
@@ -115,6 +115,7 @@ async function sb3upload() {
         JSZip.loadAsync(fileto).then(async function (zip) {
             projzip = zip
             proj = await zip.file("project.json").async("string")
+            proj = JSON.parse(proj).targets
             await initsprites()
         });
     } else {
@@ -173,7 +174,7 @@ function glen(json) {
 var startnextscript = null
 
 function blockparser(sprit) {
-    const sprite = JSON.parse(proj).targets[sprit+1]
+    const sprite = proj[sprit+1]
     var script = sprite.blocks
     for (let i = 0; i < glen(script); i++) {
         var blockcurr = script[Object.keys(script)[i]]
@@ -201,21 +202,19 @@ function renderproj(bg) {
     frect(0,0,canvas.width,canvas.height,"white")
     const w = Math.floor(bg.width);
     const h = Math.floor(bg.height);
-    const currbg = JSON.parse(proj).targets[0].currentCostume
-    const bgx = JSON.parse(proj).targets[0].costumes[currbg].rotationCenterX
-    const bgy = JSON.parse(proj).targets[0].costumes[currbg].rotationCenterY
-    console.log(w/2 - bgx)
-    console.log(h/2-bgy)
+    const currbg = proj[0].currentCostume
+    const bgx = proj[0].costumes[currbg].rotationCenterX
+    const bgy = proj[0].costumes[currbg].rotationCenterY
     cct.drawImage(bg,w/2 - bgx, h/2 - bgy,w + (w-480),h + (h-360))
     rendersprites()
 }
 //Renders Project
 
 async function parsebg() {
-    const currbg = JSON.parse(proj).targets[0].currentCostume
-    const bgf = JSON.parse(proj).targets[0].costumes[currbg].assetId+".svg"
+    const currbg = proj[0].currentCostume
+    const bgf = proj[0].costumes[currbg].assetId+".svg"
 
-    if (JSON.parse(proj).targets[0].isStage == true) {
+    if (proj[0].isStage == true) {
         var bg = await projzip.file(bgf).async("string")
         var fbg = encodeSvg(bg)
         var bg_e = new Image()
