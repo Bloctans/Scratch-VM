@@ -153,9 +153,41 @@ async function rendersvgfromzip(img,x,y,rot,size) {
 var renderdone = true
 var i2 = 0
 
+function glen(json) {
+    return Object.keys(json).length
+}
+
+//block def layout:
+//md5hash: {
+//    "opcode": block,
+//    "next": md5hash,
+//    "parent": null or md5hash,
+//    "inputs": {}, //same as the comment under
+//    "fields": {}, //currently no usage for the vm
+//    "shadow": false, //dont understand what this is
+//    "topLevel": true, //layering is nonexistant currently
+//    "x": 218, //no use to vm
+//    "y": 241 //same as 171
+//}
+
+var startnextscript = null
+
+function blockparser(sprit) {
+    var sprite = JSON.parse(proj).targets[sprit+1]
+    var script = sprite.blocks
+    for (let i = 0; i < glen(script); i++) {
+        var blockcurr = script[Object.keys(script)[i]]
+        startnextscript = blockcurr.opcode == "event_whenflagclicked"
+        if (startnextscript) {
+            console.log(script[blockcurr.next])
+        }
+    }
+}
+
 function rendersprites() {
     for (let i = 0; i < spriteimg.length; i++) {
         rendersvgfromzip(i,spritex[i],spritey[i],0,100)
+        blockparser(i)
     }
 }
 
@@ -167,9 +199,14 @@ function delay(time) {
 function renderproj(bg) {
     i2 += 1
     frect(0,0,canvas.width,canvas.height,"white")
-    var w = bg.width;
-    var h = bg.height;
-    cct.drawImage(bg,-w/8,-h/8,w,h)
+    var w = Math.floor(bg.width);
+    var h = Math.floor(bg.height);
+    var currbg = JSON.parse(proj).targets[0].currentCostume
+    var bgx = JSON.parse(proj).targets[0].costumes[currbg].rotationCenterX
+    var bgy = JSON.parse(proj).targets[0].costumes[currbg].rotationCenterY
+    console.log(w/2 - bgx)
+    console.log(h/2-bgy)
+    cct.drawImage(bg,w/2 - bgx, h/2 - bgy,w + (w-480),h + (h-360))
     rendersprites()
 }
 //Renders Project
