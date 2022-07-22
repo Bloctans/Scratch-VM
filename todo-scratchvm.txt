@@ -1,18 +1,24 @@
 done:
 test 1: moving sprites (move block)
 test 2: goto xy
+test 3: up and down to rotate left and right, point in dir and space to move 10 steps
+
+done but can be continued on:
+inspect project
 
 doing:
 sprite fencing
-inspect project
-test 3: up and down to rotate left and right, point in dir and space to move 10 steps
 
 todo:
 test 4: costumes
 test 5: vars (move by var)
-test 6: detect key in forever loop
+test 6: loops and basic move the cat project
 test 7: sounds
 test 8: hide and show
+test 9: if on edge bounce
 get and run projects from scratch servers (in another html)
 fix up code
 fix bgs (maybe)
+
+later:
+edit project lists

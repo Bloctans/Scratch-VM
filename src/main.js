@@ -207,6 +207,11 @@ function nextblock(md5,script2,sprite) {
             spritedir[csi] -= parseInt(blockscurr2.inputs.DEGREES[1][1])
         } else if (blockscurr2.opcode == "motion_turnright") {
             spritedir[csi] += parseInt(blockscurr2.inputs.DEGREES[1][1])
+        } else if (blockscurr2.opcode == "motion_pointindirection") {
+            spritedir[csi] = parseInt(blockscurr2.inputs.DIRECTION[1][1])
+        }
+        if (blockscurr2.next != null) {
+            nextblock(blockscurr2.next,script2,sprite)
         }
     }
     if (notinloop) { //placeholder, replace once loop code
@@ -226,6 +231,10 @@ function Keyhandle(e) {
         key_down = "up arrow"
     } else if (key_down == "ArrowDown") {
         key_down = "down arrow"
+    } else if (key_down == "ArrowLeft") {
+        key_down = "left arrow"
+    } else if (key_down == "ArrowRight") {
+        key_down = "right arrow"
     }
 }
 
@@ -255,12 +264,9 @@ function blockparser(sprit) {
         if (blockcurr.opcode == "event_whenflagclicked") {
             nextblock(blockcurr.next,script,sprite) 
         } else if (blockcurr.opcode == "event_whenkeypressed") {
-            debounce += 1
-            if (debounce == 2) {
-                debounce = 0
-                if (blockcurr.fields.KEY_OPTION[0] == key_down.toLowerCase()) {
-                    nextblock(blockcurr.next,script,sprite)
-                }
+            console.log(blockcurr.fields.KEY_OPTION[0])
+            if (blockcurr.fields.KEY_OPTION[0] == key_down.toLowerCase()) {
+                nextblock(blockcurr.next,script,sprite)
             }
         }
     }
@@ -324,42 +330,66 @@ function iproj() {
     inspecing = true
 }
 
+function inspect_display() {
+    if (inspecing) {
+        cct.font = '8px Arial'
+        cct.fillStyle = "Black"
+        const s = spritex
+        cct.fillText("spritex: "+s,20,10)
+        const s2 = spritey
+        cct.fillText("spritey: "+s2,20,20)
+        const s3 = spritedir
+        cct.fillText("spritedir: "+s3,20,30)
+        const s4 = sprites
+        cct.fillText("sprites: "+s4,20,40)
+        const s5 = ranscripts
+        cct.fillText("ranscripts: "+s5,20,50)
+    }
+}
+
+var then = 0
+var now = 0
+
 function scratchmain() {
-    if (running) {
-        if (proj != null) {
-            parsebg()
-            if (inspecing) {
-                cct.font = '8px Arial'
-                cct.fillStyle = "Black"
-                const s = spritex
-                cct.fillText("spritex: "+s,20,10)
-                const s2 = spritey
-                cct.fillText("spritey: "+s2,20,20)
-                const s3 = spritedir
-                cct.fillText("spritedir: "+s3,20,30)
-                const s4 = sprites
-                cct.fillText("sprites: "+s4,20,40)
-                const s5 = ranscripts
-                cct.fillText("ranscripts: "+s5,20,50)
+    //https://stackoverflow.com/questions/19764018/controlling-fps-with-requestanimationframe
+    window.requestAnimationFrame(scratchmain);
+
+    // calc elapsed time since last loop
+
+    now = Date.now();
+    elapsed = now - then;
+
+    // if enough time has elapsed, draw the next frame
+
+    if (elapsed > 25) {
+
+        // Get ready for next frame by setting then=now, but also adjust for your
+        // specified fpsInterval not being a multiple of RAF's interval (16.7ms)
+        then = now - (elapsed % 25);
+
+        // Put your drawing code here
+        if (running) {
+            if (proj != null) {
+                parsebg()
+                inspect_display()
+            } 
+            if (proj == null) {
+                noproj()
             }
         } 
-        if (proj == null) {
-            noproj()
+        else {
+            if (proj != null) {
+                frect(0,0,canvas.width,canvas.height,"white")
+                cct.font = '16px Arial'
+                cct.fillStyle = "Black"
+                const s = "Project Found! Press Start!"
+                cct.fillText(s,canvas.width/3.4,canvas.height/2)
+            } 
+            if (proj == null) {
+                noproj()
+            }
         }
-    } 
-    else {
-        if (proj != null) {
-            frect(0,0,canvas.width,canvas.height,"white")
-            cct.font = '16px Arial'
-            cct.fillStyle = "Black"
-            const s = "Project Found! Press Start!"
-            cct.fillText(s,canvas.width/3.4,canvas.height/2)
-        } 
-        if (proj == null) {
-            noproj()
-        }
+        sprites = spritenames.length
     }
-    sprites = spritenames.length
-    window.requestAnimationFrame(scratchmain)
 }
 //Main Loop
