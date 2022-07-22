@@ -19,6 +19,7 @@ var spritedir = []
 var spritesize = []
 var spritecache = []
 var sprites = 0
+let ranscripts = []
 
 function resetsprites() {
     spritenames = []
@@ -62,6 +63,7 @@ function toscratchcoord(x,y,w,h) {
     y = canvas.height/2-(h/2)+y * -1
     return [x,y]
 }
+//Attempts to accurately mimic the scratch coord system
 
 function u_errorm(msg) {
     alert(msg)
@@ -80,7 +82,7 @@ async function cachesvgfromzip(img) {
         svgimg.src = "data:image/svg+xml;utf-8," + svgencode
     } else {
         running = false
-        u_errorm("IMGCACHE Error: Error while caching imgs")
+        u_errorm("IMGCACHE Error: Error while caching imgs: First target not stage")
     }
 }
 
@@ -124,10 +126,14 @@ async function sb3upload() {
 }
 // Manages The .SB3 File Upload.
 
+function resetaftergf() {
+    ranscripts = []
+}
+//will reset green flag stuff
 
 //--[[               MINIFIED STUFF                 ]]
 
-function runproj(){running=!0}function stopproj(){running=!1}
+function runproj(){running=!0; resetaftergf()}function stopproj(){running=!1}
 //!0 = true
 //!1 = false
 
@@ -157,6 +163,8 @@ var i2 = 0
 function glen(json) {
     return Object.keys(json).length
 }
+//every time a script not in a forever is ran, the MD5 is stored in this list so that the emulator knows 
+//not to run it, it is reset when the green flag is clicked again
 
 //block def layout:
 //md5hash: {
@@ -170,25 +178,97 @@ function glen(json) {
 //    "x": 218, //no use to vm
 //    "y": 241 //same as 171
 //}
+function degToRad (deg) {
+    return deg * Math.PI / 180;
+}
 
-var startnextscript = null
+let notinloop = true
+
+function nextblock(md5,script2,sprite) {
+    if (!ranscripts.includes(md5)) {
+        var csi = 0
+        for (let i = 0; i < spritenames.length; i++) {
+            if (spritenames == sprite.name) {
+                csi = i
+            }
+        }
+        var blockscurr2 = script2[md5]
+        if (blockscurr2.opcode == "motion_movesteps") {
+            const steps = parseInt(blockscurr2.inputs.STEPS[1][1])
+            const radians = degToRad(90 - spritedir[csi]);
+            const dx = steps * Math.cos(radians);
+            const dy = steps * Math.sin(radians);
+            spritex[csi] += dx
+            spritey[csi] += dy
+        } else if (blockscurr2.opcode == "motion_gotoxy") {
+            spritex[csi] = parseInt(blockscurr2.inputs.X[1][1])
+            spritey[csi] = parseInt(blockscurr2.inputs.Y[1][1])
+        } else if (blockscurr2.opcode == "motion_turnleft") {
+            spritedir[csi] -= parseInt(blockscurr2.inputs.DEGREES[1][1])
+        } else if (blockscurr2.opcode == "motion_turnright") {
+            spritedir[csi] += parseInt(blockscurr2.inputs.DEGREES[1][1])
+        }
+    }
+    if (notinloop) { //placeholder, replace once loop code
+        if (script2[script2[md5].parent].opcode != "event_whenkeypressed") {
+            ranscripts.push(md5)
+        }
+    }
+}
+
+let key_down = "nokey"
+
+function Keyhandle(e) {
+    key_down = e.code
+    if (key_down == "ArrowUp") {
+        key_down = "up arrow"
+    } else if (key_down == "ArrowDown") {
+        key_down = "down arrow"
+    }
+}
+
+function Keyhandle2() {
+    key_down = "nokey"
+}
+
+addEventListener('keydown', Keyhandle);
+addEventListener('keyup', Keyhandle2);
+
+let debounce = 0
+
+function spritefencing(spritei) {
+    if (spritex[spritei] < -450) {
+        spritex[spritei] = -449/2
+    } else if (spritex[spritei] > 320) {
+        spritex[spritei] = 319
+        console.log("fencing active")
+    }
+}
 
 function blockparser(sprit) {
     const sprite = proj[sprit+1]
     var script = sprite.blocks
     for (let i = 0; i < glen(script); i++) {
         var blockcurr = script[Object.keys(script)[i]]
-        startnextscript = blockcurr.opcode == "event_whenflagclicked"
-        if (startnextscript) {
-            console.log(script[blockcurr.next])
+        if (blockcurr.opcode == "event_whenflagclicked") {
+            nextblock(blockcurr.next,script,sprite) 
+        } else if (blockcurr.opcode == "event_whenkeypressed") {
+            debounce += 1
+            if (debounce == 2) {
+                debounce = 0
+                if (blockcurr.fields.KEY_OPTION[0] == key_down.toLowerCase()) {
+                    nextblock(blockcurr.next,script,sprite)
+                }
+            }
         }
     }
 }
 
 function rendersprites() {
     for (let i = 0; i < spriteimg.length; i++) {
-        rendersvgfromzip(i,spritex[i],spritey[i],0,100)
+        rendersvgfromzip(i,spritex[i],spritey[i],spritedir[i]-90,0)
         blockparser(i)
+        //spritefencing(i)
     }
 }
 
