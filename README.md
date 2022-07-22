@@ -1,5 +1,5 @@
 # Scratch-VM
-This is a Beta Scratch VM
+This is a Beta Scratch VM, Made in Web JS!
 
 Visit at: https://bloctans.github.io/Scratch-VM/index.html
 
