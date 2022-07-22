@@ -4,6 +4,7 @@ test 2: goto xy
 
 doing:
 sprite fencing
+inspect project
 test 3: up and down to rotate left and right, point in dir and space to move 10 steps
 
 todo:

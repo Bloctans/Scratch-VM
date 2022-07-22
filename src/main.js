@@ -211,7 +211,9 @@ function nextblock(md5,script2,sprite) {
     }
     if (notinloop) { //placeholder, replace once loop code
         if (script2[script2[md5].parent].opcode != "event_whenkeypressed") {
-            ranscripts.push(md5)
+            if (!ranscripts.includes(md5)) {
+                ranscripts.push(md5)
+            }
         }
     }
 }
@@ -316,10 +318,30 @@ function noproj() {
     cct.fillText("No Project",canvas.width/2.4,canvas.height/2)
 }
 
+let inspecing = false
+
+function iproj() {
+    inspecing = true
+}
+
 function scratchmain() {
     if (running) {
         if (proj != null) {
             parsebg()
+            if (inspecing) {
+                cct.font = '8px Arial'
+                cct.fillStyle = "Black"
+                const s = spritex
+                cct.fillText("spritex: "+s,20,10)
+                const s2 = spritey
+                cct.fillText("spritey: "+s2,20,20)
+                const s3 = spritedir
+                cct.fillText("spritedir: "+s3,20,30)
+                const s4 = sprites
+                cct.fillText("sprites: "+s4,20,40)
+                const s5 = ranscripts
+                cct.fillText("ranscripts: "+s5,20,50)
+            }
         } 
         if (proj == null) {
             noproj()
